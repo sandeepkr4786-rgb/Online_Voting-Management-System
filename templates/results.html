@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Results &bull; {{ question }}{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <span class="results-tag">ELECTION OUTCOME</span>
+        <h2>Results: {{ question }}</h2>
+        <p class="results-meta">
+            Total Votes Cast: <strong>{{ total_votes }}</strong> &bull;
+            Voter: <strong>{{ voter_id or 'Guest' }}</strong>
+        </p>
+    </div>
+
+    <!-- Ranked Leaderboard -->
+    <div class="card leaderboard-card">
+        <h3>Official Standings &amp; Tally</h3>
+        {% if ranked %}
+        <div class="ranking-list">
+            {% for oid, opt_text, image_path, count in ranked %}
+            {% set pct = (count / total_votes * 100) if total_votes > 0 else 0 %}
+            <div class="rank-item {% if user_voted == oid %}rank-highlight{% endif %} {% if loop.first and count > 0 %}rank-winner{% endif %}">
+                <div class="rank-badge rank-pos-{{ loop.index }}">
+                    {% if loop.index == 1 and count > 0 %}🥇{% elif loop.index == 2 and count > 0 %}🥈{% elif loop.index == 3 and count > 0 %}🥉{% else %}#{{ loop.index }}{% endif %}
+                </div>
+
+                <div class="candidate-media-sm">
+                    {% if image_path %}
+                        <img src="{{ url_for('static', filename='uploads/' + image_path) }}" alt="{{ opt_text }}" class="candidate-avatar">
+                    {% else %}
+                        <div class="candidate-avatar-placeholder">👤</div>
+                    {% endif %}
+                </div>
+
+                <div class="rank-info">
+                    <div class="rank-name-row">
+                        <strong>{{ opt_text }}</strong>
+                        {% if user_voted == oid %}
+                            <span class="user-vote-pill">Your Vote</span>
+                        {% endif %}
+                        {% if loop.first and count > 0 %}
+                            <span class="winner-pill">Leader</span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: {{ '%.1f'|format(pct) }}%;"></div>
+                    </div>
+                    <div class="rank-stats">
+                        <span>{{ count }} vote{% if count != 1 %}s{% endif %}</span>
+                        <span>{{ '%.1f'|format(pct) }}%</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-text">No candidates found for this poll.</p>
+        {% endif %}
+    </div>
+
+    <!-- Visual Charts -->
+    {% if bar_chart and pie_chart %}
+    <div class="charts-section">
+        <div class="card chart-card">
+            <h3>Vote Count Comparison (Bar Chart)</h3>
+            <img src="{{ url_for('static', filename=bar_chart) }}?v={{ chart_ts }}" alt="Bar Chart" class="chart-img">
+        </div>
+        <div class="card chart-card">
+            <h3>Vote Share Distribution (Pie Chart)</h3>
+            <img src="{{ url_for('static', filename=pie_chart) }}?v={{ chart_ts }}" alt="Pie Chart" class="chart-img">
+        </div>
+    </div>
+    {% elif total_votes == 0 %}
+    <div class="card empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No Votes Cast Yet</h3>
+        <p>Charts and visual statistics will automatically appear as soon as the first vote is recorded.</p>
+        <a href="{{ url_for('poll', poll_id=poll_id) }}" class="btn btn-primary" style="margin-top: 1rem;">Be the First to Vote</a>
+    </div>
+    {% endif %}
+
+    <div class="results-actions">
+        <a href="{{ url_for('poll', poll_id=poll_id) }}" class="btn btn-primary">Go to Ballot</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Home</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const fills = document.querySelectorAll('.progress-bar-fill');
+        fills.forEach(fill => {
+            const targetWidth = fill.style.width;
+            fill.style.width = '0%';
+            setTimeout(() => {
+                fill.style.width = targetWidth;
+            }, 120);
+        });
+    });
+</script>
+{% endblock %}
+

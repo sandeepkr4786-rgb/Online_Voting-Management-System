@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login &bull; EVM Voting System{% endblock %}
+
+{% block content %}
+<div class="form-wrapper">
+    <div class="card auth-card">
+        <div class="auth-header">
+            <div class="auth-icon">🔐</div>
+            <h2>Admin Authentication</h2>
+            <p>Enter administrator credentials to create and manage election polls.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_login') }}" class="styled-form">
+            <div class="form-group">
+                <label for="username">Admin Username</label>
+                <input type="text" id="username" name="username" required placeholder="admin" autofocus autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="••••••••" autocomplete="current-password">
+            </div>
+
+            <div class="credentials-hint">
+                <small>Default credentials: <code>admin</code> / <code>evm2025@admin</code></small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Sign In as Admin</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="{{ url_for('home') }}" class="link">&larr; Back to Home</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

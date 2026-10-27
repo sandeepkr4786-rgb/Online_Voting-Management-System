@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Home &bull; EVM Voting System{% endblock %}
+
+{% block content %}
+<div class="header-section">
+    <h1>Electronic Voting Machine (EVM) System</h1>
+    <p class="subtitle">Cast your secure vote or view real-time polling results</p>
+</div>
+
+{% if top_leader %}
+<div class="card leader-banner">
+    <div class="leader-badge">⭐ Leading Candidate</div>
+    <div class="leader-content">
+        {% if top_leader.image %}
+            <img src="{{ url_for('static', filename='uploads/' + top_leader.image) }}" alt="{{ top_leader.name }}" class="leader-avatar">
+        {% else %}
+            <div class="leader-avatar-placeholder">👤</div>
+        {% endif %}
+        <div class="leader-info">
+            <h2>{{ top_leader.name }}</h2>
+            <p class="leader-votes"><strong>{{ top_leader.votes }}</strong> vote{% if top_leader.votes != 1 %}s{% endif %}</p>
+            <p class="leader-poll">Latest Poll: <em>{{ top_leader.poll_question }}</em></p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="section-heading">
+    <h2>Active Polls</h2>
+    {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('create_poll') }}" class="btn btn-sm btn-primary">+ Create Poll</a>
+    {% endif %}
+</div>
+
+{% if polls %}
+<div class="polls-grid">
+    {% for p in polls %}
+    <div class="card poll-card" style="animation-delay: {{ loop.index0 * 0.08 }}s;">
+        <div class="poll-card-header">
+            <span class="poll-tag">Poll #{{ p[0] }}</span>
+        </div>
+        <h3 class="poll-question">{{ p[1] }}</h3>
+        <div class="poll-actions">
+            <a href="{{ url_for('voter_details', poll_id=p[0]) }}" class="btn btn-primary">Vote Now</a>
+            <a href="{{ url_for('results', poll_id=p[0]) }}" class="btn btn-outline">Live Results</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No Polls Available Yet</h3>
+    <p>There are no active elections or polls running right now.</p>
+    {% if session.get('admin_logged_in') %}
+        <a href="{{ url_for('create_poll') }}" class="btn btn-primary" style="margin-top: 1rem;">Create the First Poll</a>
+    {% else %}
+        <p style="margin-top: 0.5rem;"><a href="{{ url_for('admin_login') }}" class="link">Login as Admin</a> to create a poll.</p>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+

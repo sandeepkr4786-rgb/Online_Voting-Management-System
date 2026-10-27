@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Create New Poll &bull; EVM Voting System{% endblock %}
+
+{% block content %}
+<div class="form-wrapper wide">
+    <div class="card">
+        <div class="card-header-styled">
+            <h2>Create New Election / Poll</h2>
+            <p>Set up the ballot question and register the candidates with their election symbols/photos.</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('create_poll') }}" enctype="multipart/form-data" class="styled-form" id="pollForm">
+            <div class="form-group">
+                <label for="question">Poll / Election Question <span class="required">*</span></label>
+                <input type="text" id="question" name="question" required placeholder="e.g. Presidential Election 2026 or Class Representative" value="{{ saved_question or '' }}">
+            </div>
+
+            <div class="candidates-section">
+                <div class="section-title-row">
+                    <h3>Candidates / Options <span class="required">*</span></h3>
+                    <button type="button" class="btn btn-sm btn-outline" onclick="addCandidateRow()">+ Add Candidate</button>
+                </div>
+                <p class="field-hint">Add at least 2 candidates. Upload a symbol or picture for each.</p>
+
+                <div id="candidatesList" class="candidates-container">
+                    <!-- Row 1 -->
+                    <div class="candidate-row-card">
+                        <span class="row-num">1</span>
+                        <div class="row-inputs">
+                            <input type="text" name="candidate_name[]" placeholder="Candidate Name (e.g. John Doe)" required>
+                            <div class="file-input-wrapper">
+                                <label class="file-label">Symbol / Photo:</label>
+                                <input type="file" name="candidate_image[]" accept="image/*" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-remove" onclick="removeRow(this)" title="Remove candidate">&times;</button>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="candidate-row-card">
+                        <span class="row-num">2</span>
+                        <div class="row-inputs">
+                            <input type="text" name="candidate_name[]" placeholder="Candidate Name (e.g. Jane Smith)" required>
+                            <div class="file-input-wrapper">
+                                <label class="file-label">Symbol / Photo:</label>
+                                <input type="file" name="candidate_image[]" accept="image/*" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-remove" onclick="removeRow(this)" title="Remove candidate">&times;</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">Preview EVM Ballot &rarr;</button>
+                <a href="{{ url_for('home') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('.candidate-row-card');
+        rows.forEach((row, idx) => {
+            const badge = row.querySelector('.row-num');
+            if (badge) badge.innerText = idx + 1;
+        });
+    }
+
+    function addCandidateRow() {
+        const container = document.getElementById('candidatesList');
+        const count = container.children.length + 1;
+        const row = document.createElement('div');
+        row.className = 'candidate-row-card';
+        row.innerHTML = `
+            <span class="row-num">${count}</span>
+            <div class="row-inputs">
+                <input type="text" name="candidate_name[]" placeholder="Candidate Name ${count}" required>
+                <div class="file-input-wrapper">
+                    <label class="file-label">Symbol / Photo:</label>
+                    <input type="file" name="candidate_image[]" accept="image/*" required>
+                </div>
+            </div>
+            <button type="button" class="btn-remove" onclick="removeRow(this)" title="Remove candidate">&times;</button>
+        `;
+        container.appendChild(row);
+        updateRowNumbers();
+    }
+
+    function removeRow(btn) {
+        const container = document.getElementById('candidatesList');
+        if (container.children.length <= 2) {
+            alert('A poll must have at least 2 candidates!');
+            return;
+        }
+        btn.closest('.candidate-row-card').remove();
+        updateRowNumbers();
+    }
+</script>
+{% endblock %}
+

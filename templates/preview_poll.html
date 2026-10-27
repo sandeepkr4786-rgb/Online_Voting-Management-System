@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}EVM Ballot Preview &bull; EVM Voting System{% endblock %}
+
+{% block content %}
+<div class="form-wrapper wide">
+    <div class="card evm-ballot-unit">
+        <div class="evm-header">
+            <span class="evm-badge">EVM BALLOT PREVIEW</span>
+            <h2>{{ temp_data.question }}</h2>
+            <p class="evm-instruction">Review how the ballot unit will appear to voters before confirming.</p>
+        </div>
+
+        <div class="evm-candidates-grid">
+            {% for cand in temp_data.candidates %}
+            <div class="evm-candidate-cell">
+                <div class="evm-index">{{ loop.index }}</div>
+                <div class="evm-symbol-box">
+                    {% if cand.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + cand.image) }}" alt="{{ cand.name }}" class="evm-symbol-img">
+                    {% else %}
+                        <div class="evm-symbol-placeholder">🗳️</div>
+                    {% endif %}
+                </div>
+                <div class="evm-candidate-name">{{ cand.name }}</div>
+                <div class="evm-button-mockup">
+                    <span class="evm-led"></span>
+                    <span class="evm-press-btn">VOTE</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <form method="POST" action="{{ url_for('confirm_poll', temp_id=temp_id) }}" class="preview-actions">
+            <button type="submit" class="btn btn-success btn-lg">✓ Confirm &amp; Publish Poll</button>
+            <a href="{{ url_for('create_poll') }}" class="btn btn-outline btn-lg">&larr; Edit Details</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
